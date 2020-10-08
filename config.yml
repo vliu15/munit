@@ -1,0 +1,65 @@
+
+root: &root data/horse2zebra
+size: &size 286
+crop: &crop 256
+
+############################
+# datasets and dataloaders #
+############################
+train_dataset:
+    _target_: modules.dataset.Horse2ZebraDataset
+    root: *root
+    size: *size
+    crop: *crop
+    mode: train
+train_dataloader:
+    _target_: torch.utils.data.DataLoader
+    batch_size: 1
+    pin_memory: true
+    shuffle: true
+
+test_dataset:
+    _target_: modules.dataset.Horse2ZebraDataset
+    root: *root
+    size: *size
+    crop: *crop
+    mode: test
+test_dataloader:
+    _target_: torch.utils.data.DataLoader
+    batch_size: 1
+    pin_memory: true
+    shuffle: false
+
+###############
+# munit model #
+###############
+munit:
+    _target_: modules.networks.MUNIT
+    # content encoder / decoder
+    gen_channels: 64
+    n_c_downsample: 2
+    n_res_blocks: 4
+    # style encoder
+    n_s_downsample: 4
+    s_dim: 8
+    h_dim: 256
+    # discriminator
+    dis_channels: 64
+    n_layers: 3
+    n_discriminators: 3
+
+###################
+# train and optim #
+###################
+train:
+    max_steps: 1000000
+    decay_every: 100000
+    save_every: 5000
+    lr_decay: 0.5
+    log_dir: logs
+optim:
+    _target_: torch.optim.Adam
+    lr: 0.0001
+    betas: [0.5, 0.999]
+
+resume_checkpoint: null
